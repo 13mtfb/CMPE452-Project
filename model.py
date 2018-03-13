@@ -37,11 +37,11 @@ N_INPUTS = None
 def init(hparams):
   global SEQ_LEN, DEFAULTS, N_INPUTS
   SEQ_LEN =  hparams['sequence_length']
-  DEFAULTS = [[0.0] for x in xrange(0, SEQ_LEN)]
+  DEFAULTS = [[0.0] for x in range(0, SEQ_LEN)]
   N_INPUTS = SEQ_LEN - N_OUTPUTS
 
 # read data and convert to needed format
-def read_dataset(filename, mode, batch_size):  
+def read_dataset(filename, mode, batch_size):
   def _input_fn():
     # could be a path to one file or a file pattern.
     input_file_names = tf.train.match_filenames_once(filename)
@@ -53,17 +53,17 @@ def read_dataset(filename, mode, batch_size):
 
     value_column = tf.expand_dims(value, -1)
     #print ('readcsv={}'.format(value_column))
-    
+
     # all_data is a list of tensors
-    all_data = tf.decode_csv(value_column, record_defaults=DEFAULTS)  
+    all_data = tf.decode_csv(value_column, record_defaults=DEFAULTS)
     inputs = all_data[:len(all_data)-N_OUTPUTS]  # first few values
     label = all_data[len(all_data)-N_OUTPUTS : ] # last few values
-    
+
     # from list of tensors to tensor with one more dimension
     inputs = tf.concat(inputs, axis=1)
     label = tf.concat(label, axis=1)
     #print ('inputs={}'.format(inputs))
-    
+
     return {TIMESERIES_COL: inputs}, label   # dict of features, label
   return _input_fn
 
@@ -117,7 +117,7 @@ def lstm_model(features, mode, params):
 def lstm2_model(features, mode, params):
   # dynamic_rnn needs 3D shape: [BATCH_SIZE, N_INPUTS, 1]
   x = tf.reshape(features[TIMESERIES_COL], [-1, N_INPUTS, 1])
- 
+
   # 2. configure the RNN
   lstm_cell1 = rnn.BasicLSTMCell(N_INPUTS*2, forget_bias=1.0)
   lstm_cell2 = rnn.BasicLSTMCell(N_INPUTS//2, forget_bias=1.0)
@@ -135,7 +135,7 @@ def lstm2_model(features, mode, params):
 def lstmN_model(features, mode, params):
   # dynamic_rnn needs 3D shape: [BATCH_SIZE, N_INPUTS, 1]
   x = tf.reshape(features[TIMESERIES_COL], [-1, N_INPUTS, 1])
- 
+
   # 2. configure the RNN
   lstm_cell1 = rnn.BasicLSTMCell(N_INPUTS*2, forget_bias=1.0)
   lstm_cell2 = rnn.BasicLSTMCell(N_INPUTS//2, forget_bias=1.0)
@@ -152,12 +152,12 @@ def lstmN_model(features, mode, params):
   return predictions
 
 
- 
+
 def serving_input_fn():
     feature_placeholders = {
         TIMESERIES_COL: tf.placeholder(tf.float32, [None, N_INPUTS])
     }
-  
+
     features = {
       key: tf.expand_dims(tensor, -1)
       for key, tensor in feature_placeholders.items()
