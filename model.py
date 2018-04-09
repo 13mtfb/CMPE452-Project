@@ -55,20 +55,18 @@ def read_dataset(filename, mode, batch_size):
 
 
 def lstm_model(features, mode, params):
-  #LSTM_SIZE = N_INPUTS//3  # size of the internal state in each of the cells
-  LSTM_SIZE = 6
-  # 1. dynamic_rnn needs 3D shape: [BATCH_SIZE, N_INPUTS, 1]
-  x = tf.reshape(features[TIMESERIES_COL], [-1, N_INPUTS, 1])
-
-  # 2. configure the RNN
+  #size of the internal state of the cell
+  LSTM_SIZE = 12
+  #reshaped features for dynamic_rnn
+  re = tf.reshape(features[TIMESERIES_COL], [-1, N_INPUTS, 1])
+  #configure the RNN
   lstm_cell = rnn.BasicLSTMCell(LSTM_SIZE, forget_bias=1.0)
-  outputs, _ = tf.nn.dynamic_rnn(lstm_cell, x, dtype=tf.float32)
+  outputs, _ = tf.nn.dynamic_rnn(lstm_cell, re, dtype=tf.float32)
   outputs = outputs[:, (N_INPUTS-1):, :]  # last cell only
-
-  # 3. flatten lstm output and pass through a dense layer
+  # flatten output and pass through a dense layer
   lstm_flat = tf.reshape(outputs, [-1, lstm_cell.output_size])
-  h1 = tf.layers.dense(lstm_flat, N_INPUTS//2, activation=tf.nn.relu)
-  predictions = tf.layers.dense(h1, 1, activation=None) # (?, 1)
+  h1 = tf.layers.dense(lstm_flat, 1, activation=tf.nn.elu)
+  predictions = tf.layers.dense(h1, 1, activation=None)
   return predictions
 
 def serving_input_fn():

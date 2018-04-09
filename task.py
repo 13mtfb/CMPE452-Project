@@ -13,7 +13,7 @@ from tensorflow.contrib.learn.python.learn.utils import (
 def compute_errors(features, labels, predictions):
    if predictions.shape[1] == 1:
       loss = tf.losses.mean_squared_error(labels, predictions)
-      rmse = tf.metrics.root_mean_squared_error(labels, predictions)
+      rmse = tf.metrics.root_mean_squared_error(labels,predictions)
       accuracy = tf.metrics.accuracy(labels, tf.floor(predictions))
       return loss, rmse, accuracy
    else:
@@ -113,14 +113,14 @@ def generate_experiment_fn(output_dir, hparams):
 if __name__ == '__main__':
   hparams = {'train_data_paths': 'readyData.csv',
              'eval_data_paths': 'readyData.csv',
-             'train_batch_size': 5,
+             'train_batch_size': 50,
              'learning_rate': 0.01,
-             'train_steps': 100,
+             'train_steps': 20000,
              'sequence_length': 6,
              'eval_delay_secs': 10,
              'min_eval_frequency': 1}
 
-  output_dir = ('output')
+  output_dir = ('output_12Cell_batch50')
 
   model.init(hparams)
 
